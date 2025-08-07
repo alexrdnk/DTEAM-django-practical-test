@@ -1,10 +1,9 @@
 [tool.poetry]
-name = "cvproject"
-version = "0.1.0"
-description = "Django CV Project for DTEAM practical test"
-authors = ["Developer"]
+name = "dteam-django-practical-test"
+description = "Django Developer Practical Test - CV Management System"
+authors = ["Your Name <your.email@example.com>"]
 readme = "README.md"
-packages = [{include = "cvproject"}]
+packages = [{include = "CVProject"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -21,5 +20,5 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "cvproject.settings"
+DJANGO_SETTINGS_MODULE = "CVProject.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"] 
