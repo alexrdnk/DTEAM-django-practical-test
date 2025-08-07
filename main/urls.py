@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CVListView, CVDetailView, cv_pdf_download
+from .views import CVListView, CVDetailView, cv_pdf_download, RequestLogListView
 from .api_views import CVListCreateView, CVDetailView as CVDetailAPIView, cv_list_api, cv_detail_api
 
 app_name = 'main'
@@ -9,6 +9,7 @@ urlpatterns = [
     path('', CVListView.as_view(), name='cv_list'),
     path('cv/<int:pk>/', CVDetailView.as_view(), name='cv_detail'),
     path('cv/<int:pk>/pdf/', cv_pdf_download, name='cv_pdf_download'),
+    path('logs/', RequestLogListView.as_view(), name='request_logs'),
     
     # API URLs
     path('api/cvs/', CVListCreateView.as_view(), name='cv_list_api'),

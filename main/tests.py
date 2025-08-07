@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from .models import CV
+from .models import CV, RequestLog
 
 
 class CVModelTest(TestCase):
@@ -272,3 +272,192 @@ class CVAPITest(APITestCase):
         url = reverse('main:cv_detail_api', kwargs={'pk': 999})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class RequestLogModelTest(TestCase):
+    """Test cases for RequestLog model."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        self.log = RequestLog.objects.create(
+            method='GET',
+            path='/test/',
+            query_string='param=value',
+            remote_ip='127.0.0.1',
+            user_agent='Test Browser',
+            response_status=200,
+            response_time=0.1,
+            user=self.user,
+            is_authenticated=True
+        )
+    
+    def test_request_log_creation(self):
+        """Test RequestLog creation."""
+        self.assertEqual(self.log.method, 'GET')
+        self.assertEqual(self.log.path, '/test/')
+        self.assertEqual(self.log.response_status, 200)
+        self.assertEqual(self.log.user, self.user)
+        self.assertTrue(self.log.is_authenticated)
+    
+    def test_request_log_str_method(self):
+        """Test RequestLog string representation."""
+        expected = f"GET /test/ - {self.log.timestamp}"
+        self.assertEqual(str(self.log), expected)
+    
+    def test_request_log_get_duration_display(self):
+        """Test get_duration_display method."""
+        # Test milliseconds
+        self.log.response_time = 0.05
+        self.assertEqual(self.log.get_duration_display(), "50ms")
+        
+        # Test seconds
+        self.log.response_time = 1.5
+        self.assertEqual(self.log.get_duration_display(), "1.50s")
+    
+    def test_request_log_ordering(self):
+        """Test RequestLog ordering by timestamp."""
+        log2 = RequestLog.objects.create(
+            method='POST',
+            path='/test2/',
+            remote_ip='127.0.0.1',
+            response_status=201,
+            response_time=0.2
+        )
+        logs = list(RequestLog.objects.all())
+        self.assertEqual(logs[0], log2)  # Newer log should be first
+
+
+class RequestLogViewTest(TestCase):
+    """Test cases for RequestLog list view."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.client = Client()
+        self.log = RequestLog.objects.create(
+            method='GET',
+            path='/test/',
+            remote_ip='127.0.0.1',
+            response_status=200,
+            response_time=0.1
+        )
+    
+    def test_request_log_view_status_code(self):
+        """Test RequestLog view returns 200 status code."""
+        response = self.client.get(reverse('main:request_logs'))
+        self.assertEqual(response.status_code, 200)
+    
+    def test_request_log_view_template(self):
+        """Test RequestLog view uses correct template."""
+        response = self.client.get(reverse('main:request_logs'))
+        self.assertTemplateUsed(response, 'main/request_logs.html')
+    
+    def test_request_log_view_context(self):
+        """Test RequestLog view has correct context."""
+        response = self.client.get(reverse('main:request_logs'))
+        self.assertIn('logs', response.context)
+        self.assertEqual(len(response.context['logs']), 1)
+    
+    def test_request_log_view_limits_to_10(self):
+        """Test RequestLog view limits to 10 most recent logs."""
+        # Create 15 logs
+        for i in range(15):
+            RequestLog.objects.create(
+                method='GET',
+                path=f'/test{i}/',
+                remote_ip='127.0.0.1',
+                response_status=200,
+                response_time=0.1
+            )
+        
+        response = self.client.get(reverse('main:request_logs'))
+        self.assertEqual(len(response.context['logs']), 10)
+
+
+class RequestLoggingMiddlewareTest(TestCase):
+    """Test cases for RequestLoggingMiddleware."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.client = Client()
+        self.cv = CV.objects.create(
+            firstname="John",
+            lastname="Doe",
+            skills="Python, Django",
+            projects="Web application",
+            bio="Experienced developer",
+            contacts="john.doe@email.com"
+        )
+    
+    def test_middleware_logs_requests(self):
+        """Test that middleware logs requests."""
+        initial_count = RequestLog.objects.count()
+        
+        # Make a request
+        response = self.client.get(reverse('main:cv_list'))
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that a log was created
+        self.assertEqual(RequestLog.objects.count(), initial_count + 1)
+        
+        # Check log details
+        log = RequestLog.objects.latest('timestamp')
+        self.assertEqual(log.method, 'GET')
+        self.assertEqual(log.path, '/')
+        self.assertEqual(log.response_status, 200)
+        self.assertGreater(log.response_time, 0)
+    
+    def test_middleware_logs_authenticated_requests(self):
+        """Test that middleware logs authenticated requests correctly."""
+        user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        self.client.login(username='testuser', password='testpass123')
+        
+        # Make an authenticated request
+        response = self.client.get(reverse('main:cv_list'))
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that log shows authenticated user
+        log = RequestLog.objects.latest('timestamp')
+        self.assertEqual(log.user, user)
+        self.assertTrue(log.is_authenticated)
+    
+    def test_middleware_logs_anonymous_requests(self):
+        """Test that middleware logs anonymous requests correctly."""
+        # Make an anonymous request
+        response = self.client.get(reverse('main:cv_list'))
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that log shows anonymous user
+        log = RequestLog.objects.latest('timestamp')
+        self.assertIsNone(log.user)
+        self.assertFalse(log.is_authenticated)
+    
+    def test_middleware_logs_api_requests(self):
+        """Test that middleware logs API requests."""
+        # Make an API request
+        response = self.client.get('/api/cvs/')
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that log was created
+        log = RequestLog.objects.latest('timestamp')
+        self.assertEqual(log.method, 'GET')
+        self.assertEqual(log.path, '/api/cvs/')
+        self.assertEqual(log.response_status, 200)
+    
+    def test_middleware_logs_error_responses(self):
+        """Test that middleware logs error responses."""
+        # Make a request to non-existent page
+        response = self.client.get('/non-existent-page/')
+        self.assertEqual(response.status_code, 404)
+        
+        # Check that log was created with error status
+        log = RequestLog.objects.latest('timestamp')
+        self.assertEqual(log.response_status, 404)

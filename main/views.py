@@ -12,7 +12,7 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY, TA_RIGHT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from io import BytesIO
-from .models import CV
+from .models import CV, RequestLog
 
 
 class CVListView(ListView):
@@ -40,6 +40,18 @@ class CVDetailView(DetailView):
     def get_pdf_response(self, cv):
         """Generate PDF response for CV."""
         return generate_cv_pdf(cv)
+
+
+class RequestLogListView(ListView):
+    """View to display recent request logs."""
+    model = RequestLog
+    template_name = 'main/request_logs.html'
+    context_object_name = 'logs'
+    paginate_by = 20
+
+    def get_queryset(self):
+        """Return the 10 most recent request logs."""
+        return RequestLog.objects.all().order_by('-timestamp')[:10]
 
 
 def generate_cv_pdf(cv):
