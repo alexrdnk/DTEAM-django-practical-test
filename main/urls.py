@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CVListView, CVDetailView, cv_pdf_download, RequestLogListView, settings_view, send_pdf_email_api
+from .views import CVListView, CVDetailView, cv_pdf_download, RequestLogListView, settings_view, send_pdf_email_api, translate_cv_api, trigger_background_task, celery_tasks_view
 from .api_views import CVListCreateView, CVDetailView as CVDetailAPIView, cv_list_api, cv_detail_api
 
 app_name = 'main'
@@ -12,6 +12,9 @@ urlpatterns = [
     path('logs/', RequestLogListView.as_view(), name='request_logs'),
     path('settings/', settings_view, name='settings'),
     path('api/send-pdf-email/', send_pdf_email_api, name='send_pdf_email'),
+    path('api/translate-cv/', translate_cv_api, name='translate_cv'),
+    path('trigger-task/', trigger_background_task, name='trigger_task'),
+    path('celery-tasks/', celery_tasks_view, name='celery_tasks'),
     
     # API URLs
     path('api/cvs/', CVListCreateView.as_view(), name='cv_list_api'),

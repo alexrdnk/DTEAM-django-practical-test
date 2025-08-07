@@ -17,6 +17,7 @@ from .tasks import (
     send_email_task, send_cv_notification_task, generate_cv_pdf_task,
     cleanup_old_logs_task, send_daily_report_task, test_task, long_running_task
 )
+from .translation_service import TranslationService
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -43,6 +44,15 @@ class CVDetailView(DetailView):
     def get_object(self, queryset=None):
         """Get the CV object by ID."""
         return get_object_or_404(CV, pk=self.kwargs.get('pk'))
+
+    def get_context_data(self, **kwargs):
+        """Add translation languages to context."""
+        context = super().get_context_data(**kwargs)
+        from .translation_service import TranslationService
+        translation_service = TranslationService()
+        context['available_languages'] = translation_service.get_available_languages()
+        context['languages_by_category'] = translation_service.get_languages_by_category()
+        return context
 
     def get_pdf_response(self, cv):
         """Generate PDF response for CV."""
@@ -352,6 +362,68 @@ def send_pdf_email_api(request):
             'message': f'PDF will be sent to {email}',
             'task_id': result.id
         })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON data'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Error: {str(e)}'
+        })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def translate_cv_api(request):
+    """API endpoint to translate CV content using OpenAI."""
+    try:
+        data = json.loads(request.body)
+        cv_id = data.get('cv_id')
+        target_language = data.get('language')
+        
+        if not cv_id or not target_language:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'CV ID and language are required'
+            })
+        
+        # Get the CV
+        try:
+            cv = CV.objects.get(id=cv_id)
+        except CV.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'CV not found'
+            })
+        
+        # Initialize translation service
+        translation_service = TranslationService()
+        
+        # Check if language is supported
+        if target_language not in translation_service.get_available_languages():
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Language {target_language} is not supported'
+            })
+        
+        # Translate the CV content
+        result = translation_service.translate_cv_content(cv, target_language)
+        
+        if result.get('translated') is True:
+            return JsonResponse({
+                'status': 'success',
+                'message': f'CV translated to {result["language"]}',
+                'translation': result
+            })
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'message': result.get('error', 'Translation failed'),
+                'details': result
+            })
         
     except json.JSONDecodeError:
         return JsonResponse({

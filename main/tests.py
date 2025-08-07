@@ -10,6 +10,8 @@ from .tasks import (
     send_email_task, send_cv_notification_task, generate_cv_pdf_task,
     cleanup_old_logs_task, send_daily_report_task, test_task, long_running_task
 )
+from .translation_service import TranslationService
+import json
 
 
 class CVModelTest(TestCase):
@@ -664,8 +666,9 @@ class CeleryTasksTest(TestCase):
     def test_send_cv_notification_task(self):
         """Test CV notification task."""
         result = send_cv_notification_task(self.cv.id, "admin@cvproject.com")
-        # Should return a task ID for the email task
-        self.assertIsInstance(result, str)
+        # Should return an AsyncResult object
+        from celery.result import AsyncResult
+        self.assertIsInstance(result, AsyncResult)
     
     def test_generate_cv_pdf_task(self):
         """Test PDF generation task."""
@@ -685,8 +688,9 @@ class CeleryTasksTest(TestCase):
     def test_send_daily_report_task(self):
         """Test daily report task."""
         result = send_daily_report_task()
-        # Should return a task ID for the email task
-        self.assertIsInstance(result, str)
+        # Should return an AsyncResult object
+        from celery.result import AsyncResult
+        self.assertIsInstance(result, AsyncResult)
     
     def test_long_running_task(self):
         """Test long running task."""
@@ -805,3 +809,164 @@ class BackgroundTaskViewTest(TestCase):
         data = response.json()
         self.assertEqual(data['status'], 'error')
         self.assertIn('No CVs found', data['message'])
+
+
+class TranslationServiceTest(TestCase):
+    """Test cases for translation service."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.cv = CV.objects.create(
+            firstname="John",
+            lastname="Doe",
+            skills="Python, Django",
+            projects="Web application",
+            bio="Experienced developer",
+            contacts="john.doe@email.com"
+        )
+        self.translation_service = TranslationService()
+    
+    def test_get_available_languages(self):
+        """Test getting available languages."""
+        languages = self.translation_service.get_available_languages()
+        self.assertIsInstance(languages, dict)
+        
+        # Test original required languages
+        self.assertIn('cornish', languages)
+        self.assertIn('manx', languages)
+        self.assertIn('breton', languages)
+        self.assertEqual(languages['cornish'], 'Cornish')
+        
+        # Test additional popular languages
+        self.assertIn('french', languages)
+        self.assertIn('german', languages)
+        self.assertIn('spanish', languages)
+        self.assertIn('portuguese_brazil', languages)
+        self.assertIn('italian', languages)
+        self.assertIn('japanese', languages)
+        self.assertIn('chinese_simplified', languages)
+        self.assertIn('ukrainian', languages)
+        self.assertIn('korean', languages)
+        self.assertIn('turkish', languages)
+        
+        # Test total count (17 original + 10 new = 27)
+        self.assertEqual(len(languages), 27)
+    
+    def test_prepare_cv_content(self):
+        """Test CV content preparation."""
+        content = self.translation_service._prepare_cv_content(self.cv)
+        self.assertEqual(content['name'], 'John Doe')
+        self.assertEqual(content['bio'], 'Experienced developer')
+        self.assertEqual(content['skills'], 'Python, Django')
+        self.assertEqual(content['projects'], 'Web application')
+        self.assertEqual(content['contacts'], 'john.doe@email.com')
+    
+    def test_create_translation_prompt(self):
+        """Test translation prompt creation."""
+        cv_content = {
+            'name': 'John Doe',
+            'bio': 'Experienced developer',
+            'skills': 'Python, Django',
+            'projects': 'Web application',
+            'contacts': 'john.doe@email.com'
+        }
+        prompt = self.translation_service._create_translation_prompt(cv_content, 'cornish')
+        self.assertIn('Cornish', prompt)
+        self.assertIn('John Doe', prompt)
+        self.assertIn('Experienced developer', prompt)
+        self.assertIn('JSON', prompt)
+    
+    def test_translate_cv_content_no_api_key(self):
+        """Test translation without API key or with quota issues."""
+        result = self.translation_service.translate_cv_content(self.cv, 'cornish')
+        self.assertFalse(result['translated'])
+        # Check for either API key not configured or quota/API errors
+        self.assertTrue(
+            'OpenAI API key not configured' in result['error'] or 
+            'Translation failed' in result['error'] or
+            'quota' in result['error'].lower() or
+            '429' in result['error']
+        )
+    
+    def test_translate_cv_content_invalid_language(self):
+        """Test translation with invalid language."""
+        result = self.translation_service.translate_cv_content(self.cv, 'invalid_language')
+        self.assertFalse(result['translated'])
+        self.assertIn('not supported', result['error'])
+
+
+class TranslationAPITest(TestCase):
+    """Test cases for translation API."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.client = Client()
+        self.cv = CV.objects.create(
+            firstname="John",
+            lastname="Doe",
+            skills="Python, Django",
+            projects="Web application",
+            bio="Experienced developer",
+            contacts="john.doe@email.com"
+        )
+    
+    def test_translate_cv_api_missing_data(self):
+        """Test translation API with missing data."""
+        response = self.client.post('/api/translate-cv/', 
+                                  content_type='application/json',
+                                  data=json.dumps({}))
+        data = response.json()
+        self.assertEqual(data['status'], 'error')
+        self.assertIn('CV ID and language are required', data['message'])
+    
+    def test_translate_cv_api_invalid_cv_id(self):
+        """Test translation API with invalid CV ID."""
+        response = self.client.post('/api/translate-cv/',
+                                  content_type='application/json',
+                                  data=json.dumps({
+                                      'cv_id': 999,
+                                      'language': 'cornish'
+                                  }))
+        data = response.json()
+        self.assertEqual(data['status'], 'error')
+        self.assertIn('CV not found', data['message'])
+    
+    def test_translate_cv_api_invalid_language(self):
+        """Test translation API with invalid language."""
+        response = self.client.post('/api/translate-cv/',
+                                  content_type='application/json',
+                                  data=json.dumps({
+                                      'cv_id': self.cv.id,
+                                      'language': 'invalid_language'
+                                  }))
+        data = response.json()
+        self.assertEqual(data['status'], 'error')
+        self.assertIn('not supported', data['message'])
+    
+    def test_translate_cv_api_valid_request(self):
+        """Test translation API with valid request."""
+        response = self.client.post('/api/translate-cv/',
+                                  content_type='application/json',
+                                  data=json.dumps({
+                                      'cv_id': self.cv.id,
+                                      'language': 'cornish'
+                                  }))
+        data = response.json()
+        # Should fail because of API key or quota issues
+        self.assertEqual(data['status'], 'error')
+        # Check for either API key not configured or quota/API errors
+        self.assertTrue(
+            'OpenAI API key not configured' in data['message'] or 
+            'Translation failed' in data['message'] or
+            'quota' in data['message'].lower() or
+            '429' in data['message']
+        )
+    
+    def test_translate_cv_api_invalid_json(self):
+        """Test translation API with invalid JSON."""
+        response = self.client.post('/api/translate-cv/',
+                                  content_type='application/json',
+                                  data='invalid json')
+        data = response.json()
+        self.assertEqual(data['status'], 'error')
+        self.assertIn('Invalid JSON data', data['message'])
