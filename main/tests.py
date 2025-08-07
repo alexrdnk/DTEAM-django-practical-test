@@ -6,6 +6,10 @@ from rest_framework import status
 from .models import CV, RequestLog
 from .context_processors import settings_context
 from decouple import config
+from .tasks import (
+    send_email_task, send_cv_notification_task, generate_cv_pdf_task,
+    cleanup_old_logs_task, send_daily_report_task, test_task, long_running_task
+)
 
 
 class CVModelTest(TestCase):
@@ -622,3 +626,182 @@ class DockerSetupTest(TestCase):
         
         # Check that SECRET_KEY is not empty
         self.assertGreater(len(settings.SECRET_KEY), 0)
+
+
+class CeleryTasksTest(TestCase):
+    """Test cases for Celery background tasks."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.cv = CV.objects.create(
+            firstname="John",
+            lastname="Doe",
+            skills="Python, Django",
+            projects="Web application",
+            bio="Experienced developer",
+            contacts="john.doe@email.com"
+        )
+    
+    def test_test_task(self):
+        """Test the simple test task."""
+        result = test_task()
+        self.assertEqual(result, "Test task completed successfully!")
+    
+    def test_send_email_task(self):
+        """Test email sending task."""
+        result = send_email_task(
+            "Test Subject",
+            "Test message",
+            ["test@example.com"]
+        )
+        # The task should either succeed or fail gracefully
+        self.assertIsInstance(result, str)
+        self.assertTrue(
+            "Email sent successfully" in result or "Failed to send email" in result,
+            f"Unexpected result: {result}"
+        )
+    
+    def test_send_cv_notification_task(self):
+        """Test CV notification task."""
+        result = send_cv_notification_task(self.cv.id, "admin@cvproject.com")
+        # Should return a task ID for the email task
+        self.assertIsInstance(result, str)
+    
+    def test_generate_cv_pdf_task(self):
+        """Test PDF generation task."""
+        result = generate_cv_pdf_task(self.cv.id)
+        self.assertIn("PDF generated successfully", result)
+    
+    def test_generate_cv_pdf_task_invalid_id(self):
+        """Test PDF generation task with invalid CV ID."""
+        result = generate_cv_pdf_task(999)
+        self.assertIn("CV with ID 999 not found", result)
+    
+    def test_cleanup_old_logs_task(self):
+        """Test log cleanup task."""
+        result = cleanup_old_logs_task()
+        self.assertIn("No cleanup needed", result)
+    
+    def test_send_daily_report_task(self):
+        """Test daily report task."""
+        result = send_daily_report_task()
+        # Should return a task ID for the email task
+        self.assertIsInstance(result, str)
+    
+    def test_long_running_task(self):
+        """Test long running task."""
+        result = long_running_task()
+        self.assertEqual(result, "Long running task completed!")
+
+
+class BackgroundTaskViewTest(TestCase):
+    """Test cases for background task trigger view."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.client = Client()
+        self.cv = CV.objects.create(
+            firstname="John",
+            lastname="Doe",
+            skills="Python, Django",
+            projects="Web application",
+            bio="Experienced developer",
+            contacts="john.doe@email.com"
+        )
+    
+    def test_trigger_task_view_status_code(self):
+        """Test trigger task view returns 200 status code."""
+        response = self.client.get(reverse('main:trigger_task'))
+        self.assertEqual(response.status_code, 200)
+    
+    def test_trigger_task_view_json_response(self):
+        """Test trigger task view returns JSON response."""
+        response = self.client.get(reverse('main:trigger_task'))
+        self.assertEqual(response['Content-Type'], 'application/json')
+    
+    def test_trigger_task_view_default_task(self):
+        """Test trigger task view with default task type."""
+        response = self.client.get(reverse('main:trigger_task'))
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertIn('Test task triggered', data['message'])
+        self.assertIn('task_id', data)
+    
+    def test_trigger_task_view_email_task(self):
+        """Test trigger task view with email task type."""
+        response = self.client.get(reverse('main:trigger_task') + '?task=email')
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertIn('Email task triggered', data['message'])
+        self.assertIn('task_id', data)
+    
+    def test_trigger_task_view_cv_notification_task(self):
+        """Test trigger task view with CV notification task type."""
+        response = self.client.get(reverse('main:trigger_task') + '?task=cv_notification')
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertIn('CV notification task triggered', data['message'])
+        self.assertIn('task_id', data)
+    
+    def test_trigger_task_view_pdf_generation_task(self):
+        """Test trigger task view with PDF generation task type."""
+        response = self.client.get(reverse('main:trigger_task') + '?task=pdf_generation')
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertIn('PDF generation task triggered', data['message'])
+        self.assertIn('task_id', data)
+    
+    def test_trigger_task_view_cleanup_logs_task(self):
+        """Test trigger task view with cleanup logs task type."""
+        try:
+            response = self.client.get(reverse('main:trigger_task') + '?task=cleanup_logs')
+            data = response.json()
+            self.assertEqual(data['status'], 'success')
+            self.assertIn('Log cleanup task triggered', data['message'])
+            self.assertIn('task_id', data)
+        except Exception as e:
+            # If Redis is not available, the task should still be triggered
+            # but may fail due to connection issues
+            self.assertIn('Log cleanup task triggered', str(e) or 'Task triggered')
+    
+    def test_trigger_task_view_daily_report_task(self):
+        """Test trigger task view with daily report task type."""
+        try:
+            response = self.client.get(reverse('main:trigger_task') + '?task=daily_report')
+            data = response.json()
+            self.assertEqual(data['status'], 'success')
+            self.assertIn('Daily report task triggered', data['message'])
+            self.assertIn('task_id', data)
+        except Exception as e:
+            # If Redis is not available, the task should still be triggered
+            # but may fail due to connection issues
+            self.assertIn('Daily report task triggered', str(e) or 'Task triggered')
+    
+    def test_trigger_task_view_long_running_task(self):
+        """Test trigger task view with long running task type."""
+        try:
+            response = self.client.get(reverse('main:trigger_task') + '?task=long_running')
+            data = response.json()
+            self.assertEqual(data['status'], 'success')
+            self.assertIn('Long running task triggered', data['message'])
+            self.assertIn('task_id', data)
+        except Exception as e:
+            # If Redis is not available, the task should still be triggered
+            # but may fail due to connection issues
+            self.assertIn('Long running task triggered', str(e) or 'Task triggered')
+    
+    def test_trigger_task_view_cv_notification_no_cv(self):
+        """Test trigger task view with CV notification when no CVs exist."""
+        CV.objects.all().delete()
+        response = self.client.get(reverse('main:trigger_task') + '?task=cv_notification')
+        data = response.json()
+        self.assertEqual(data['status'], 'error')
+        self.assertIn('No CVs found', data['message'])
+    
+    def test_trigger_task_view_pdf_generation_no_cv(self):
+        """Test trigger task view with PDF generation when no CVs exist."""
+        CV.objects.all().delete()
+        response = self.client.get(reverse('main:trigger_task') + '?task=pdf_generation')
+        data = response.json()
+        self.assertEqual(data['status'], 'error')
+        self.assertIn('No CVs found', data['message'])

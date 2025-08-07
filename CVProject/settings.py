@@ -27,6 +27,7 @@ try:
     DB_HOST = config('DB_HOST', default='localhost')
     DB_PORT = config('DB_PORT', default='5432', cast=int)
     USE_SQLITE = config('USE_SQLITE', default=True, cast=bool)  # Default to SQLite for local development
+    REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
 except ImportError:
     # Fallback for when python-decouple is not installed
     SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
@@ -37,6 +38,7 @@ except ImportError:
     DB_HOST = 'localhost'
     DB_PORT = 5432
     USE_SQLITE = True  # Default to SQLite for local development
+    REDIS_URL = 'redis://localhost:6379/0'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -161,3 +163,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Celery Configuration
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Celery Beat Schedule (for periodic tasks)
+CELERY_BEAT_SCHEDULE = {
+    'send-daily-report': {
+        'task': 'main.tasks.send_daily_report',
+        'schedule': 86400.0,  # 24 hours
+    },
+}

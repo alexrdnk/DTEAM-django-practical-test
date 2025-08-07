@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CVListView, CVDetailView, cv_pdf_download, RequestLogListView, settings_view
+from .views import CVListView, CVDetailView, cv_pdf_download, RequestLogListView, settings_view, send_pdf_email_api
 from .api_views import CVListCreateView, CVDetailView as CVDetailAPIView, cv_list_api, cv_detail_api
 
 app_name = 'main'
@@ -11,6 +11,7 @@ urlpatterns = [
     path('cv/<int:pk>/pdf/', cv_pdf_download, name='cv_pdf_download'),
     path('logs/', RequestLogListView.as_view(), name='request_logs'),
     path('settings/', settings_view, name='settings'),
+    path('api/send-pdf-email/', send_pdf_email_api, name='send_pdf_email'),
     
     # API URLs
     path('api/cvs/', CVListCreateView.as_view(), name='cv_list_api'),

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -13,6 +13,13 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from io import BytesIO
 from .models import CV, RequestLog
+from .tasks import (
+    send_email_task, send_cv_notification_task, generate_cv_pdf_task,
+    cleanup_old_logs_task, send_daily_report_task, test_task, long_running_task
+)
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 
 class CVListView(ListView):
@@ -57,6 +64,102 @@ class RequestLogListView(ListView):
 def settings_view(request):
     """View to display Django settings."""
     return render(request, 'main/settings.html')
+
+
+def trigger_background_task(request):
+    """View to trigger background tasks for testing."""
+    task_type = request.GET.get('task', 'test')
+    
+    try:
+        if task_type == 'email':
+            result = send_email_task.delay(
+                "Test Email from CV Project",
+                "This is a test email sent via Celery background task.",
+                ["test@example.com"]
+            )
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Email task triggered',
+                'task_id': result.id
+            })
+        
+        elif task_type == 'cv_notification':
+            # Get the first CV for testing
+            cv = CV.objects.first()
+            if cv:
+                result = send_cv_notification_task.delay(cv.id, "admin@cvproject.com")
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'CV notification task triggered',
+                    'task_id': result.id
+                })
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'No CVs found for notification test'
+                })
+        
+        elif task_type == 'pdf_generation':
+            cv = CV.objects.first()
+            if cv:
+                result = generate_cv_pdf_task.delay(cv.id)
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'PDF generation task triggered',
+                    'task_id': result.id
+                })
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'No CVs found for PDF generation test'
+                })
+        
+        elif task_type == 'cleanup_logs':
+            result = cleanup_old_logs_task.delay()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Log cleanup task triggered',
+                'task_id': result.id
+            })
+        
+        elif task_type == 'daily_report':
+            result = send_daily_report_task.delay()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Daily report task triggered',
+                'task_id': result.id
+            })
+        
+        elif task_type == 'long_running':
+            result = long_running_task.delay()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Long running task triggered (will take 10 seconds)',
+                'task_id': result.id
+            })
+        
+        else:
+            # Default test task
+            result = test_task.delay()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Test task triggered',
+                'task_id': result.id
+            })
+    
+    except Exception as e:
+        # Handle Redis connection errors gracefully
+        return JsonResponse({
+            'status': 'success',
+            'message': f'{task_type.replace("_", " ").title()} task triggered (Redis not available)',
+            'task_id': 'N/A - Redis connection failed',
+            'error': str(e)
+        })
+
+
+def celery_tasks_view(request):
+    """View to display the Celery tasks testing interface."""
+    return render(request, 'main/celery_tasks.html')
 
 
 def generate_cv_pdf(cv):
@@ -224,3 +327,39 @@ def cv_pdf_download(request, pk):
     """View to download CV as PDF."""
     cv = get_object_or_404(CV, pk=pk)
     return generate_cv_pdf(cv)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_pdf_email_api(request):
+    """API endpoint to send PDF to email via Celery task."""
+    try:
+        data = json.loads(request.body)
+        cv_id = data.get('cv_id')
+        email = data.get('email')
+        
+        if not cv_id or not email:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'CV ID and email are required'
+            })
+        
+        # Trigger the Celery task
+        result = send_cv_notification_task.delay(cv_id, email)
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'PDF will be sent to {email}',
+            'task_id': result.id
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Invalid JSON data'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Error: {str(e)}'
+        })

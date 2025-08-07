@@ -1,0 +1,188 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Celery Tasks - CV Project{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2 mb-0">
+                    <i class="fas fa-tasks text-primary me-2"></i>
+                    Celery Background Tasks
+                </h1>
+                <a href="{% url 'main:cv_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to CVs
+                </a>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Note:</strong> This page allows you to trigger various background tasks. 
+                Make sure Celery worker is running to process these tasks.
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-envelope me-2"></i>
+                                Email Tasks
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6>Send Test Email</h6>
+                                <p class="text-muted small">Sends a test email via background task</p>
+                                <button class="btn btn-primary btn-sm" onclick="triggerTask('email')">
+                                    <i class="fas fa-paper-plane me-1"></i>Send Test Email
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <h6>CV Notification</h6>
+                                <p class="text-muted small">Sends notification about CV via background task</p>
+                                <button class="btn btn-info btn-sm" onclick="triggerTask('cv_notification')">
+                                    <i class="fas fa-bell me-1"></i>Send CV Notification
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Daily Report</h6>
+                                <p class="text-muted small">Sends daily system report via background task</p>
+                                <button class="btn btn-success btn-sm" onclick="triggerTask('daily_report')">
+                                    <i class="fas fa-chart-bar me-1"></i>Send Daily Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cogs me-2"></i>
+                                System Tasks
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6>PDF Generation</h6>
+                                <p class="text-muted small">Generates PDF in background (simulated)</p>
+                                <button class="btn btn-warning btn-sm" onclick="triggerTask('pdf_generation')">
+                                    <i class="fas fa-file-pdf me-1"></i>Generate PDF
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Log Cleanup</h6>
+                                <p class="text-muted small">Cleans up old request logs</p>
+                                <button class="btn btn-secondary btn-sm" onclick="triggerTask('cleanup_logs')">
+                                    <i class="fas fa-broom me-1"></i>Cleanup Logs
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Long Running Task</h6>
+                                <p class="text-muted small">Simulates a 10-second long task</p>
+                                <button class="btn btn-danger btn-sm" onclick="triggerTask('long_running')">
+                                    <i class="fas fa-clock me-1"></i>Run Long Task
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-play me-2"></i>
+                                Test Task
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6>Simple Test Task</h6>
+                                <p class="text-muted small">Runs a simple test task for debugging</p>
+                                <button class="btn btn-info btn-sm" onclick="triggerTask('test')">
+                                    <i class="fas fa-play me-1"></i>Run Test Task
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-terminal me-2"></i>
+                                Task Results
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="task-results">
+                                <p class="text-muted">Task results will appear here...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function triggerTask(taskType) {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    // Disable button and show loading
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Processing...';
+    
+    // Make AJAX request
+    fetch(`/api/tasks/?task=${taskType}`)
+        .then(response => response.json())
+        .then(data => {
+            // Re-enable button
+            button.disabled = false;
+            button.innerHTML = originalText;
+            
+            // Show result
+            const resultsDiv = document.getElementById('task-results');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const resultHtml = `
+                <div class="alert alert-${data.status === 'success' ? 'success' : 'danger'} mb-2">
+                    <strong>${timestamp}</strong> - ${data.message}
+                    ${data.task_id ? `<br><small class="text-muted">Task ID: ${data.task_id}</small>` : ''}
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = resultHtml + resultsDiv.innerHTML;
+        })
+        .catch(error => {
+            // Re-enable button
+            button.disabled = false;
+            button.innerHTML = originalText;
+            
+            // Show error
+            const resultsDiv = document.getElementById('task-results');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const resultHtml = `
+                <div class="alert alert-danger mb-2">
+                    <strong>${timestamp}</strong> - Error: ${error.message}
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = resultHtml + resultsDiv.innerHTML;
+        });
+}
+</script>
+{% endblock %} 

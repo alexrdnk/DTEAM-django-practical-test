@@ -18,6 +18,12 @@ services:
       retries: 5
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
   web:
     build: .
     command: >
@@ -32,9 +38,48 @@ services:
     environment:
       - DB_HOST=db
       - USE_SQLITE=False
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  celery:
+    build: .
+    command: celery -A CVProject worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env.docker
+    environment:
+      - DB_HOST=db
+      - USE_SQLITE=False
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  celery-beat:
+    build: .
+    command: celery -A CVProject beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env.docker
+    environment:
+      - DB_HOST=db
+      - USE_SQLITE=False
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     restart: unless-stopped
 
 volumes:
