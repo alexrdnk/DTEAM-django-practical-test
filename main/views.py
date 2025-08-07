@@ -48,10 +48,16 @@ class CVDetailView(DetailView):
     def get_context_data(self, **kwargs):
         """Add translation languages to context."""
         context = super().get_context_data(**kwargs)
-        from .translation_service import TranslationService
-        translation_service = TranslationService()
-        context['available_languages'] = translation_service.get_available_languages()
-        context['languages_by_category'] = translation_service.get_languages_by_category()
+        try:
+            from .translation_service import TranslationService
+            translation_service = TranslationService()
+            context['available_languages'] = translation_service.get_available_languages()
+            context['languages_by_category'] = translation_service.get_languages_by_category()
+        except Exception as e:
+            # Fallback if translation service fails
+            print(f"Translation service error: {e}")
+            context['available_languages'] = {}
+            context['languages_by_category'] = {'required': {}, 'popular': {}, 'all': {}}
         return context
 
     def get_pdf_response(self, cv):
@@ -400,17 +406,36 @@ def translate_cv_api(request):
             })
         
         # Initialize translation service
-        translation_service = TranslationService()
-        
-        # Check if language is supported
-        if target_language not in translation_service.get_available_languages():
+        try:
+            translation_service = TranslationService()
+        except Exception as e:
             return JsonResponse({
                 'status': 'error',
-                'message': f'Language {target_language} is not supported'
+                'message': f'Failed to initialize translation service: {str(e)}'
+            })
+        
+        # Check if language is supported
+        try:
+            available_languages = translation_service.get_available_languages()
+            if target_language not in available_languages:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Language {target_language} is not supported'
+                })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Failed to get available languages: {str(e)}'
             })
         
         # Translate the CV content
-        result = translation_service.translate_cv_content(cv, target_language)
+        try:
+            result = translation_service.translate_cv_content(cv, target_language)
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Translation failed: {str(e)}'
+            })
         
         if result.get('translated') is True:
             return JsonResponse({

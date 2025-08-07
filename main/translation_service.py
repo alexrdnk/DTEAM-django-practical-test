@@ -43,8 +43,11 @@ class TranslationService:
         """Initialize the translation service."""
         self.client = None
         if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY.strip():
-            openai.api_key = settings.OPENAI_API_KEY
-            self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+            try:
+                self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+            except Exception as e:
+                print(f"Failed to initialize OpenAI client: {e}")
+                self.client = None
     
     def get_available_languages(self):
         """Get list of available languages for translation."""
@@ -104,7 +107,13 @@ class TranslationService:
         """
         if not self.client:
             return {
-                'error': 'OpenAI API key not configured',
+                'error': 'OpenAI API key not configured. Please set OPENAI_API_KEY in settings.',
+                'translated': False
+            }
+        
+        if not settings.OPENAI_API_KEY or not settings.OPENAI_API_KEY.strip():
+            return {
+                'error': 'OpenAI API key is not set. Please configure OPENAI_API_KEY in your environment.',
                 'translated': False
             }
         
