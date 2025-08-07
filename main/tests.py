@@ -5,6 +5,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from .models import CV, RequestLog
 from .context_processors import settings_context
+from decouple import config
 
 
 class CVModelTest(TestCase):
@@ -564,3 +565,60 @@ class SettingsViewTest(TestCase):
         self.assertIn('MIDDLEWARE', response.context)
         # Check that MIDDLEWARE is a list
         self.assertIsInstance(response.context['MIDDLEWARE'], list)
+
+
+class DockerSetupTest(TestCase):
+    """Test cases for Docker setup and environment variables."""
+    
+    def test_environment_variables_loading(self):
+        """Test that environment variables are properly loaded."""
+        # Test that config function is available
+        from decouple import config
+        
+        # Test default values
+        debug = config('DEBUG', default=True, cast=bool)
+        self.assertIsInstance(debug, bool)
+        
+        secret_key = config('SECRET_KEY', default='test-key')
+        self.assertIsInstance(secret_key, str)
+        
+        db_name = config('DB_NAME', default='test_db')
+        self.assertIsInstance(db_name, str)
+    
+    def test_database_configuration(self):
+        """Test that database configuration is properly set."""
+        from django.conf import settings
+        
+        # Check that database configuration exists
+        self.assertIn('default', settings.DATABASES)
+        
+        # Check that database engine is set
+        db_config = settings.DATABASES['default']
+        self.assertIn('ENGINE', db_config)
+        
+        # Check that database name is set
+        self.assertIn('NAME', db_config)
+    
+    def test_allowed_hosts_configuration(self):
+        """Test that ALLOWED_HOSTS is properly configured for Docker."""
+        from django.conf import settings
+        
+        # Check that ALLOWED_HOSTS allows all hosts (for Docker)
+        self.assertIn('*', settings.ALLOWED_HOSTS)
+    
+    def test_debug_configuration(self):
+        """Test that DEBUG setting is properly configured."""
+        from django.conf import settings
+        
+        # Check that DEBUG is a boolean
+        self.assertIsInstance(settings.DEBUG, bool)
+    
+    def test_secret_key_configuration(self):
+        """Test that SECRET_KEY is properly configured."""
+        from django.conf import settings
+        
+        # Check that SECRET_KEY is a string
+        self.assertIsInstance(settings.SECRET_KEY, str)
+        
+        # Check that SECRET_KEY is not empty
+        self.assertGreater(len(settings.SECRET_KEY), 0)

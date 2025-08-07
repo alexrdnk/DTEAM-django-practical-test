@@ -11,21 +11,43 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Try to import decouple, fallback to defaults if not available
+try:
+    from decouple import config
+    SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-here-change-in-production')
+    DEBUG = config('DEBUG', default=True, cast=bool)
+    DB_NAME = config('DB_NAME', default='cvproject_db')
+    DB_USER = config('DB_USER', default='cvproject_user')
+    DB_PASSWORD = config('DB_PASSWORD', default='cvproject_password')
+    DB_HOST = config('DB_HOST', default='localhost')
+    DB_PORT = config('DB_PORT', default='5432', cast=int)
+    USE_SQLITE = config('USE_SQLITE', default=True, cast=bool)  # Default to SQLite for local development
+except ImportError:
+    # Fallback for when python-decouple is not installed
+    SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
+    DEBUG = True
+    DB_NAME = 'cvproject_db'
+    DB_USER = 'cvproject_user'
+    DB_PASSWORD = 'cvproject_password'
+    DB_HOST = 'localhost'
+    DB_PORT = 5432
+    USE_SQLITE = True  # Default to SQLite for local development
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dlcd00mq9!f3p%%z=k^u5!g=g&af*-_eo!98y=x_e69k*7x^#h'
+# SECRET_KEY is set above
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG is set above
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -77,12 +99,26 @@ WSGI_APPLICATION = 'CVProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Use SQLite for local development by default
+if USE_SQLITE:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # Use PostgreSQL for Docker/production
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DB_NAME,
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        }
+    }
 
 
 # Password validation
