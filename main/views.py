@@ -54,6 +54,11 @@ class RequestLogListView(ListView):
         return RequestLog.objects.all().order_by('-timestamp')[:10]
 
 
+def settings_view(request):
+    """View to display Django settings."""
+    return render(request, 'main/settings.html')
+
+
 def generate_cv_pdf(cv):
     """Generate modern, professional PDF for CV using ReportLab."""
     # Create a file-like buffer to receive PDF data

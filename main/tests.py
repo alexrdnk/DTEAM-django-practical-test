@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from .models import CV, RequestLog
+from .context_processors import settings_context
 
 
 class CVModelTest(TestCase):
@@ -461,3 +462,105 @@ class RequestLoggingMiddlewareTest(TestCase):
         # Check that log was created with error status
         log = RequestLog.objects.latest('timestamp')
         self.assertEqual(log.response_status, 404)
+
+
+class ContextProcessorTest(TestCase):
+    """Test cases for settings context processor."""
+    
+    def test_settings_context_processor(self):
+        """Test that settings context processor returns expected data."""
+        # Create a mock request
+        request = type('MockRequest', (), {})()
+        
+        # Get context from processor
+        context = settings_context(request)
+        
+        # Check that required settings are present
+        self.assertIn('settings', context)
+        self.assertIn('DEBUG', context)
+        self.assertIn('SECRET_KEY', context)
+        self.assertIn('INSTALLED_APPS', context)
+        self.assertIn('MIDDLEWARE', context)
+        self.assertIn('ROOT_URLCONF', context)
+        self.assertIn('TEMPLATES', context)
+        self.assertIn('WSGI_APPLICATION', context)
+        self.assertIn('STATIC_URL', context)
+        self.assertIn('LANGUAGE_CODE', context)
+        self.assertIn('TIME_ZONE', context)
+        self.assertIn('USE_I18N', context)
+        self.assertIn('USE_TZ', context)
+        self.assertIn('DEFAULT_AUTO_FIELD', context)
+    
+    def test_settings_context_secret_key_truncation(self):
+        """Test that SECRET_KEY is properly truncated in context."""
+        request = type('MockRequest', (), {})()
+        context = settings_context(request)
+        
+        # Check that SECRET_KEY is truncated if longer than 10 characters
+        secret_key = context['SECRET_KEY']
+        if len(secret_key) > 13:  # 10 chars + '...'
+            self.assertTrue(secret_key.endswith('...'))
+    
+    def test_settings_context_media_url_handling(self):
+        """Test that MEDIA_URL is handled properly when not set."""
+        request = type('MockRequest', (), {})()
+        context = settings_context(request)
+        
+        # Check that MEDIA_URL is present (even if empty)
+        self.assertIn('MEDIA_URL', context)
+
+
+class SettingsViewTest(TestCase):
+    """Test cases for settings view."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.client = Client()
+    
+    def test_settings_view_status_code(self):
+        """Test settings view returns 200 status code."""
+        response = self.client.get(reverse('main:settings'))
+        self.assertEqual(response.status_code, 200)
+    
+    def test_settings_view_template(self):
+        """Test settings view uses correct template."""
+        response = self.client.get(reverse('main:settings'))
+        self.assertTemplateUsed(response, 'main/settings.html')
+    
+    def test_settings_view_context(self):
+        """Test settings view has settings in context."""
+        response = self.client.get(reverse('main:settings'))
+        self.assertIn('DEBUG', response.context)
+        self.assertIn('SECRET_KEY', response.context)
+        self.assertIn('INSTALLED_APPS', response.context)
+        self.assertIn('MIDDLEWARE', response.context)
+        self.assertIn('ROOT_URLCONF', response.context)
+        self.assertIn('TEMPLATES', response.context)
+        self.assertIn('WSGI_APPLICATION', response.context)
+        self.assertIn('STATIC_URL', response.context)
+        self.assertIn('LANGUAGE_CODE', response.context)
+        self.assertIn('TIME_ZONE', response.context)
+        self.assertIn('USE_I18N', response.context)
+        self.assertIn('USE_TZ', response.context)
+        self.assertIn('DEFAULT_AUTO_FIELD', response.context)
+    
+    def test_settings_view_debug_display(self):
+        """Test that DEBUG setting is properly displayed."""
+        response = self.client.get(reverse('main:settings'))
+        self.assertIn('DEBUG', response.context)
+        # Check that the template can access DEBUG
+        self.assertIsInstance(response.context['DEBUG'], bool)
+    
+    def test_settings_view_installed_apps_display(self):
+        """Test that INSTALLED_APPS is properly displayed."""
+        response = self.client.get(reverse('main:settings'))
+        self.assertIn('INSTALLED_APPS', response.context)
+        # Check that INSTALLED_APPS is a list
+        self.assertIsInstance(response.context['INSTALLED_APPS'], list)
+    
+    def test_settings_view_middleware_display(self):
+        """Test that MIDDLEWARE is properly displayed."""
+        response = self.client.get(reverse('main:settings'))
+        self.assertIn('MIDDLEWARE', response.context)
+        # Check that MIDDLEWARE is a list
+        self.assertIsInstance(response.context['MIDDLEWARE'], list)
