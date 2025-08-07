@@ -156,3 +156,40 @@ class CVAdminTest(TestCase):
         response = self.client.get('/admin/main/cv/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "John Doe")
+
+
+class CVPDFTest(TestCase):
+    """Test cases for PDF generation functionality."""
+
+    def setUp(self):
+        """Set up test data."""
+        self.client = Client()
+        self.cv = CV.objects.create(
+            firstname="John",
+            lastname="Doe",
+            skills="Python, Django, JavaScript",
+            projects="E-commerce Platform: Built a full-stack application",
+            bio="Experienced Full-Stack Developer with 5+ years of experience",
+            contacts="Email: john.doe@example.com\nPhone: +1 (555) 123-4567"
+        )
+
+    def test_pdf_download_view_status_code(self):
+        """Test that the PDF download view returns 200 status code."""
+        response = self.client.get(reverse('main:cv_pdf_download', kwargs={'pk': self.cv.pk}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_pdf_download_content_type(self):
+        """Test that the PDF download returns correct content type."""
+        response = self.client.get(reverse('main:cv_pdf_download', kwargs={'pk': self.cv.pk}))
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+
+    def test_pdf_download_filename(self):
+        """Test that the PDF download has correct filename."""
+        response = self.client.get(reverse('main:cv_pdf_download', kwargs={'pk': self.cv.pk}))
+        expected_filename = f'attachment; filename="{self.cv.get_full_name()}_CV.pdf"'
+        self.assertEqual(response['Content-Disposition'], expected_filename)
+
+    def test_pdf_download_404(self):
+        """Test that the PDF download returns 404 for non-existent CV."""
+        response = self.client.get(reverse('main:cv_pdf_download', kwargs={'pk': 999}))
+        self.assertEqual(response.status_code, 404)

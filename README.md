@@ -159,11 +159,35 @@ Follow PEP 8 and other style guidelines, use clear and concise commit messages a
    - Add basic tests for the list and detail views.
    - Update `README.md` with instructions on how to run these tests.
 
-### Task 2: PDF Generation Basics
+### Task 2: PDF Generation Basics ✅ COMPLETED
 
-1. Choose and install any HTML-to-PDF generating library or tool.
+**Status**: ✅ Completed
 
-2. Add a 'Download PDF' button on the CV detail page that allows users to download the CV as a PDF.
+**What was implemented**:
+1. ✅ **PDF Library**: Installed and configured ReportLab for PDF generation
+2. ✅ **PDF Generation**: Created comprehensive PDF generation functionality using ReportLab
+3. ✅ **Download Button**: Added "Download PDF" button on CV detail page
+4. ✅ **PDF Template**: Created PDF-optimized template with professional styling
+5. ✅ **URL Routing**: Added PDF download URL pattern (`/cv/<id>/pdf/`)
+6. ✅ **Tests**: Added comprehensive tests for PDF functionality (4 new tests, 17 total)
+
+**Features**:
+- Professional PDF generation with ReportLab
+- Clean, formatted PDF layout with proper styling
+- Automatic filename generation based on CV name
+- Proper content type and headers for download
+- Error handling for non-existent CVs
+- Comprehensive test coverage
+
+**Technical Details**:
+- Uses ReportLab for reliable PDF generation
+- Custom styling with professional fonts and colors
+- Proper page layout and spacing
+- Includes metadata and generation timestamp
+- Windows-compatible (no external dependencies)
+
+**URLs**:
+- `/cv/<id>/pdf/` - PDF download endpoint
 
 ### Task 3: REST API Fundamentals
 

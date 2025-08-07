@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ cv.get_full_name }} - CV</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .title {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .contact-info p {
+            margin: 5px 0;
+        }
+        
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .skill-tag {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .projects-content {
+            margin-top: 10px;
+        }
+        
+        .projects-content p {
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+            border-top: 1px solid #ecf0f1;
+            padding-top: 15px;
+        }
+        
+        .metadata {
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="name">{{ cv.get_full_name }}</div>
+        <div class="title">Professional CV</div>
+    </div>
+    
+    <!-- Contact Information -->
+    <div class="section">
+        <div class="section-title">Contact Information</div>
+        <div class="contact-info">
+            {{ cv.contacts|linebreaks }}
+        </div>
+    </div>
+    
+    <!-- Professional Summary -->
+    <div class="section">
+        <div class="section-title">Professional Summary</div>
+        <div class="bio-content">
+            {{ cv.bio|linebreaks }}
+        </div>
+    </div>
+    
+    <!-- Skills & Expertise -->
+    <div class="section">
+        <div class="section-title">Skills & Expertise</div>
+        <div class="skills-list">
+            {% for skill in cv.skills|split:", " %}
+                <span class="skill-tag">{{ skill }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Projects & Achievements -->
+    <div class="section">
+        <div class="section-title">Projects & Achievements</div>
+        <div class="projects-content">
+            {{ cv.projects|linebreaks }}
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>Generated on {{ cv.updated_at|date:"F d, Y" }} at {{ cv.updated_at|time:"H:i" }}</p>
+    </div>
+    
+    <!-- Metadata -->
+    <div class="metadata">
+        <p>CV ID: {{ cv.pk }} | Created: {{ cv.created_at|date:"M d, Y" }} | Updated: {{ cv.updated_at|date:"M d, Y" }}</p>
+    </div>
+</body>
+</html> 

@@ -122,6 +122,9 @@
                             <a href="{% url 'main:cv_list' %}" class="btn btn-outline-primary">
                                 <i class="fas fa-arrow-left me-2"></i>Back to All CVs
                             </a>
+                            <a href="{% url 'main:cv_pdf_download' cv.pk %}" class="btn btn-danger">
+                                <i class="fas fa-file-pdf me-2"></i>Download PDF
+                            </a>
                             <button class="btn btn-success" onclick="window.print()">
                                 <i class="fas fa-print me-2"></i>Print CV
                             </button>

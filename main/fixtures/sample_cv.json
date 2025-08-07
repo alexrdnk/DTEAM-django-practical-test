@@ -5,12 +5,12 @@
         "fields": {
             "firstname": "John",
             "lastname": "Doe",
-            "skills": "Python, Django, JavaScript, React, PostgreSQL, Docker, Git, AWS, REST APIs, Agile/Scrum",
-            "projects": "E-commerce Platform: Built a full-stack e-commerce application using Django and React. Features include user authentication, product catalog, shopping cart, payment integration, and admin dashboard.\n\nTask Management App: Developed a collaborative task management tool with real-time updates, file sharing, and team collaboration features.\n\nPortfolio Website: Created a responsive portfolio website with modern design, contact forms, and blog functionality.",
-            "bio": "Experienced Full-Stack Developer with 5+ years of experience in web development. Passionate about creating scalable, user-friendly applications and solving complex problems. Strong background in Python/Django ecosystem and modern frontend technologies. Committed to writing clean, maintainable code and staying up-to-date with industry best practices.",
-            "contacts": "Email: john.doe@example.com\nPhone: +1 (555) 123-4567\nLinkedIn: linkedin.com/in/johndoe\nGitHub: github.com/johndoe\nLocation: San Francisco, CA",
-            "created_at": "2024-01-15T10:30:00Z",
-            "updated_at": "2024-01-15T10:30:00Z"
+            "skills": "Python, Django, React, JavaScript, PostgreSQL, Docker, AWS, Git, REST APIs, Agile",
+            "projects": "E-commerce Platform (Django/React): Developed a full-stack e-commerce solution with payment integration, user authentication, and admin dashboard. Reduced checkout time by 40% and increased conversion rate by 25%.\n\nTask Management App (Python/Flask): Built a collaborative project management tool with real-time updates, file sharing, and team communication features. Used by 50+ teams across the company.\n\nData Analytics Dashboard (Python/Pandas): Created interactive dashboards for business intelligence, processing 1M+ data points daily and providing actionable insights to stakeholders.",
+            "bio": "Experienced software developer with 5+ years of expertise in full-stack development, specializing in Python, Django, and modern web technologies. Passionate about creating scalable, user-friendly applications that solve real-world problems. Strong advocate for clean code, testing, and continuous learning.",
+            "contacts": "john.doe@email.com\n+1 (555) 123-4567\nlinkedin.com/in/johndoe\ngithub.com/johndoe\nSan Francisco, CA",
+            "created_at": "2024-01-15T10:00:00Z",
+            "updated_at": "2024-01-15T10:00:00Z"
         }
     },
     {
@@ -19,12 +19,12 @@
         "fields": {
             "firstname": "Jane",
             "lastname": "Smith",
-            "skills": "Python, FastAPI, Machine Learning, TensorFlow, PyTorch, SQL, MongoDB, Kubernetes, CI/CD, Data Analysis",
-            "projects": "AI Chatbot: Developed an intelligent chatbot using natural language processing and machine learning algorithms. Integrated with multiple messaging platforms and achieved 95% user satisfaction.\n\nPredictive Analytics Dashboard: Built a real-time analytics dashboard for business intelligence using Python, FastAPI, and React. Processed large datasets and provided actionable insights.\n\nRecommendation System: Implemented a collaborative filtering recommendation engine for an e-commerce platform, increasing sales by 25%.",
-            "bio": "Data Scientist and Backend Developer with expertise in machine learning and data engineering. Specialized in building scalable AI solutions and data pipelines. Experience with cloud platforms and big data technologies. Strong analytical skills and passion for turning data into actionable insights.",
-            "contacts": "Email: jane.smith@example.com\nPhone: +1 (555) 987-6543\nLinkedIn: linkedin.com/in/janesmith\nGitHub: github.com/janesmith\nLocation: New York, NY",
-            "created_at": "2024-01-20T14:45:00Z",
-            "updated_at": "2024-01-20T14:45:00Z"
+            "skills": "Java, Spring Boot, Microservices, Kubernetes, MongoDB, Redis, Elasticsearch, Kafka, CI/CD, TDD",
+            "projects": "Microservices Architecture (Java/Spring): Led the migration from monolithic to microservices architecture, improving system reliability by 99.9% and reducing deployment time from hours to minutes.\n\nReal-time Analytics Platform (Java/Kafka): Built a high-performance data processing pipeline handling 10M+ events per second, providing real-time insights for business decisions.\n\nAPI Gateway (Java/Spring Cloud): Designed and implemented a centralized API gateway with authentication, rate limiting, and monitoring, serving 100+ microservices.",
+            "bio": "Senior software engineer with 7+ years of experience in enterprise software development, focusing on scalable architectures and high-performance systems. Expert in Java ecosystem, microservices, and cloud-native technologies. Committed to delivering robust, maintainable code and mentoring junior developers.",
+            "contacts": "jane.smith@email.com\n+1 (555) 987-6543\nlinkedin.com/in/janesmith\ngithub.com/janesmith\nNew York, NY",
+            "created_at": "2024-01-15T11:00:00Z",
+            "updated_at": "2024-01-15T11:00:00Z"
         }
     }
 ] 
