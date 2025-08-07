@@ -1,0 +1,30 @@
+[
+    {
+        "model": "main.cv",
+        "pk": 1,
+        "fields": {
+            "firstname": "John",
+            "lastname": "Doe",
+            "skills": "Python, Django, JavaScript, React, PostgreSQL, Docker, Git, AWS, REST APIs, Agile/Scrum",
+            "projects": "E-commerce Platform: Built a full-stack e-commerce application using Django and React. Features include user authentication, product catalog, shopping cart, payment integration, and admin dashboard.\n\nTask Management App: Developed a collaborative task management tool with real-time updates, file sharing, and team collaboration features.\n\nPortfolio Website: Created a responsive portfolio website with modern design, contact forms, and blog functionality.",
+            "bio": "Experienced Full-Stack Developer with 5+ years of experience in web development. Passionate about creating scalable, user-friendly applications and solving complex problems. Strong background in Python/Django ecosystem and modern frontend technologies. Committed to writing clean, maintainable code and staying up-to-date with industry best practices.",
+            "contacts": "Email: john.doe@example.com\nPhone: +1 (555) 123-4567\nLinkedIn: linkedin.com/in/johndoe\nGitHub: github.com/johndoe\nLocation: San Francisco, CA",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z"
+        }
+    },
+    {
+        "model": "main.cv",
+        "pk": 2,
+        "fields": {
+            "firstname": "Jane",
+            "lastname": "Smith",
+            "skills": "Python, FastAPI, Machine Learning, TensorFlow, PyTorch, SQL, MongoDB, Kubernetes, CI/CD, Data Analysis",
+            "projects": "AI Chatbot: Developed an intelligent chatbot using natural language processing and machine learning algorithms. Integrated with multiple messaging platforms and achieved 95% user satisfaction.\n\nPredictive Analytics Dashboard: Built a real-time analytics dashboard for business intelligence using Python, FastAPI, and React. Processed large datasets and provided actionable insights.\n\nRecommendation System: Implemented a collaborative filtering recommendation engine for an e-commerce platform, increasing sales by 25%.",
+            "bio": "Data Scientist and Backend Developer with expertise in machine learning and data engineering. Specialized in building scalable AI solutions and data pipelines. Experience with cloud platforms and big data technologies. Strong analytical skills and passion for turning data into actionable insights.",
+            "contacts": "Email: jane.smith@example.com\nPhone: +1 (555) 987-6543\nLinkedIn: linkedin.com/in/janesmith\nGitHub: github.com/janesmith\nLocation: New York, NY",
+            "created_at": "2024-01-20T14:45:00Z",
+            "updated_at": "2024-01-20T14:45:00Z"
+        }
+    }
+] 

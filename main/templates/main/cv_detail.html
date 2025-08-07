@@ -1,0 +1,150 @@
+{% extends 'main/base.html' %}
+{% load cv_extras %}
+
+{% block title %}{{ cv.get_full_name }} - CV Project{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
+                    <div class="text-start">
+                        <h1 class="display-5 fw-bold mb-1">{{ cv.get_full_name }}</h1>
+                        <p class="lead mb-0">Professional CV</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CV Details Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Bio Section -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-circle me-2"></i>Professional Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ cv.bio|linebreaks }}</p>
+                    </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>Skills & Expertise
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="skills-list">
+                            {% for skill in cv.skills|split:", " %}
+                                <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Section -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-project-diagram me-2"></i>Projects & Achievements
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="projects-content">
+                            {{ cv.projects|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Contact Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-address-card me-2"></i>Contact Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="contact-info">
+                            {{ cv.contacts|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CV Metadata -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>CV Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Created</small>
+                                <p class="mb-2">{{ cv.created_at|date:"M d, Y" }}</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Updated</small>
+                                <p class="mb-2">{{ cv.updated_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <small class="text-muted">Last Updated</small>
+                                <p class="mb-0">{{ cv.updated_at|timesince }} ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'main:cv_list' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to All CVs
+                            </a>
+                            <button class="btn btn-success" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Print CV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Print Styles -->
+<style media="print">
+    .navbar, .hero-section, .btn, footer {
+        display: none !important;
+    }
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+    .card-header {
+        background-color: #f8f9fa !important;
+        color: #333 !important;
+    }
+</style>
+{% endblock %} 

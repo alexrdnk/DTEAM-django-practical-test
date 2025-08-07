@@ -1,0 +1,139 @@
+{% extends 'main/base.html' %}
+{% load cv_extras %}
+
+{% block title %}All CVs - CV Project{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-user-tie me-3"></i>Professional CVs
+                </h1>
+                <p class="lead mb-0">Discover talented professionals and their expertise</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CV List Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title text-center mb-5">
+                    <i class="fas fa-users me-2"></i>Available CVs
+                </h2>
+            </div>
+        </div>
+        
+        {% if cvs %}
+            <div class="row g-4">
+                {% for cv in cvs %}
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card cv-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-1">{{ cv.get_full_name }}</h5>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Added {{ cv.created_at|date:"M d, Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <p class="card-text text-muted mb-3">
+                                {{ cv.bio|truncatewords:20 }}
+                            </p>
+                            
+                            <div class="mb-3">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-tools me-1"></i>Skills
+                                </h6>
+                                <div class="skills-list">
+                                    {% for skill in cv.skills|slice:":3"|split:", " %}
+                                        <span class="skill-tag">{{ skill }}</span>
+                                    {% endfor %}
+                                    {% if cv.skills|split:", "|length > 3 %}
+                                        <span class="skill-tag">+{{ cv.skills|split:", "|length|add:"-3" }} more</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'main:cv_detail' cv.pk %}" class="btn btn-primary">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Updated {{ cv.updated_at|timesince }} ago
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="row mt-5">
+                <div class="col-12">
+                    <nav aria-label="CV pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="py-5">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No CVs Available</h4>
+                        <p class="text-muted">No CVs have been added yet.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %} 

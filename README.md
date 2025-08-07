@@ -2,6 +2,82 @@
 
 Welcome! This test will help us see how you structure a Django project, work with various tools, and handle common tasks in web development. Follow the instructions step by step. Good luck!
 
+## Project Setup Instructions
+
+### Prerequisites
+- Python 3.11+ (managed with pyenv)
+- Poetry for dependency management
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd DTEAM-django-practical-test
+   ```
+
+2. **Set up Python version with pyenv**
+   ```bash
+   pyenv install 3.11.7
+   pyenv local 3.11.7
+   ```
+
+3. **Install dependencies with Poetry**
+   ```bash
+   poetry install
+   ```
+
+4. **Run database migrations**
+   ```bash
+   python manage.py migrate
+   ```
+
+5. **Load sample data**
+   ```bash
+   python manage.py loaddata main/fixtures/sample_cv.json
+   ```
+
+6. **Create a superuser (optional)**
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+### Running the Application
+
+1. **Start the development server**
+   ```bash
+   python manage.py runserver
+   ```
+
+2. **Access the application**
+   - Main application: http://127.0.0.1:8000/
+   - Admin interface: http://127.0.0.1:8000/admin/
+
+### Running Tests
+
+```bash
+python manage.py test main
+```
+
+### Project Structure
+
+```
+DTEAM-django-practical-test/
+├── CVProject/                 # Django project settings
+├── main/                      # Main application
+│   ├── models.py             # CV model definition
+│   ├── views.py              # List and detail views
+│   ├── admin.py              # Admin interface configuration
+│   ├── tests.py              # Test cases
+│   ├── urls.py               # URL routing
+│   ├── templates/main/        # HTML templates
+│   ├── fixtures/             # Sample data
+│   └── templatetags/         # Custom template filters
+├── manage.py                  # Django management script
+├── pyproject.toml            # Poetry dependencies
+└── .python-version           # Python version specification
+```
+
 ## Requirements
 
 Follow PEP 8 and other style guidelines, use clear and concise commit messages and docstrings where needed, structure your project for readability and maintainability, optimize database access using Django's built-in methods, and provide enough details in your README.
@@ -26,7 +102,35 @@ Follow PEP 8 and other style guidelines, use clear and concise commit messages a
 
 ## Tasks
 
-### Task 1: Django Fundamentals
+### Task 1: Django Fundamentals ✅ COMPLETED
+
+**Status**: ✅ Completed
+
+**What was implemented**:
+1. ✅ **Django Project**: Created `CVProject` using Django 5.2.5
+2. ✅ **CV Model**: Created comprehensive CV model with fields: `firstname`, `lastname`, `skills`, `projects`, `bio`, `contacts`, `created_at`, `updated_at`
+3. ✅ **Admin Interface**: Configured Django admin with organized fieldsets and search functionality
+4. ✅ **Fixtures**: Created sample data with 2 realistic CV entries
+5. ✅ **List View**: Implemented efficient list view with pagination and modern UI using Bootstrap
+6. ✅ **Detail View**: Created detailed CV view with print functionality
+7. ✅ **Templates**: Built responsive templates with modern design using Bootstrap 5 and Font Awesome
+8. ✅ **Tests**: Comprehensive test suite covering models, views, and admin functionality (13 tests passing)
+9. ✅ **URL Routing**: Proper URL patterns for list and detail views
+10. ✅ **Custom Template Filters**: Created custom filters for better template functionality
+
+**Features**:
+- Modern, responsive UI with Bootstrap 5
+- Efficient database queries with proper ordering
+- Pagination for large datasets
+- Print-friendly CV detail pages
+- Comprehensive admin interface
+- Custom template filters for enhanced display
+- Full test coverage
+
+**URLs**:
+- `/` - CV list page
+- `/cv/<id>/` - CV detail page
+- `/admin/` - Admin interface
 
 1. **Create a New Django Project**
    - Name it something like `CVProject`.
