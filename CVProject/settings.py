@@ -105,8 +105,20 @@ WSGI_APPLICATION = 'CVProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use SQLite for local development by default
-if USE_SQLITE:
+# Database configuration
+import os
+import dj_database_url
+
+# Check if DATABASE_URL is set (Railway, Heroku, etc.)
+DATABASE_URL = config('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    # Use DATABASE_URL for cloud deployments
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+elif USE_SQLITE:
+    # Use SQLite for local development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
