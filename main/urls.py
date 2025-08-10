@@ -8,11 +8,9 @@ urlpatterns = [
     # Health check
     path('health/', health_check, name='health_check'),
     
-    # Root view for Railway healthcheck
-    path('', root_view, name='root'),
-    
     # Web URLs
-    path('cvs/', CVListView.as_view(), name='cv_list'),
+    path('', CVListView.as_view(), name='cv_list'),
+    path('cvs/', CVListView.as_view(), name='cv_list_alt'),
     path('cv/<int:pk>/', CVDetailView.as_view(), name='cv_detail'),
     path('cv/<int:pk>/pdf/', cv_pdf_download, name='cv_pdf_download'),
     path('logs/', RequestLogListView.as_view(), name='request_logs'),
