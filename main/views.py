@@ -471,3 +471,12 @@ def health_check(request):
         'message': 'Django CV Project is running successfully',
         'timestamp': timezone.now().isoformat()
     })
+
+
+def root_view(request):
+    """Simple root view for Railway healthcheck."""
+    return JsonResponse({
+        'status': 'ok',
+        'message': 'Django CV Project is running',
+        'timestamp': timezone.now().isoformat()
+    })
