@@ -49,9 +49,8 @@ def main():
     print(f"Working directory: {os.getcwd()}")
     print(f"Python version: {sys.version}")
     
-    # Step 2: Startup check
-    if not run_command("python startup_check.py", "Startup Check"):
-        print("⚠️ Startup check failed, but continuing...")
+    # Step 2: Startup check (optional - removed startup_check.py file)
+    print("⚠️ Startup check skipped - startup_check.py removed")
     
     # Step 3: Django check
     if not run_command("python manage.py check", "Django Check"):
