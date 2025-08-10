@@ -1,10 +1,13 @@
 from django.urls import path
-from .views import CVListView, CVDetailView, cv_pdf_download, RequestLogListView, settings_view, send_pdf_email_api, translate_cv_api, trigger_background_task, celery_tasks_view
+from .views import CVListView, CVDetailView, cv_pdf_download, RequestLogListView, settings_view, send_pdf_email_api, translate_cv_api, trigger_background_task, celery_tasks_view, health_check
 from .api_views import CVListCreateView, CVDetailView as CVDetailAPIView, cv_list_api, cv_detail_api
 
 app_name = 'main'
 
 urlpatterns = [
+    # Health check
+    path('health/', health_check, name='health_check'),
+    
     # Web URLs
     path('', CVListView.as_view(), name='cv_list'),
     path('cv/<int:pk>/', CVDetailView.as_view(), name='cv_detail'),

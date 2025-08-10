@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_http_methods
 from django.template.loader import render_to_string
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -21,6 +22,7 @@ from .translation_service import TranslationService
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.utils import timezone
 
 
 class CVListView(ListView):
@@ -460,3 +462,12 @@ def translate_cv_api(request):
             'status': 'error',
             'message': f'Error: {str(e)}'
         })
+
+
+def health_check(request):
+    """Simple health check endpoint for Railway."""
+    return JsonResponse({
+        'status': 'healthy',
+        'message': 'Django CV Project is running successfully',
+        'timestamp': timezone.now().isoformat()
+    })
