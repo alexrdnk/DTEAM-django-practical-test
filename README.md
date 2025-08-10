@@ -1,200 +1,210 @@
 # DTEAM - Django Developer Practical Test
 
-A comprehensive Django web application demonstrating full-stack development skills with modern technologies.
+Welcome! This test will help us see how you structure a Django project, work with various tools, and handle common tasks in web development. Follow the instructions step by step. Good luck!
 
 ## 🚀 **Live Demo**
 **Production URL**: https://dteam-django-practical-test-production.up.railway.app  
 **Admin Access**: admin/admin123
 
-## 📋 **Project Overview**
+## Project Setup Instructions
 
-This project implements a CV management system with the following features:
+### Prerequisites
+- Python 3.11+ (managed with pyenv)
+- Poetry for dependency management
 
-- **CV Management**: Create, view, and manage professional CVs
-- **PDF Generation**: Generate and download professional PDF CVs
-- **REST API**: Full CRUD operations with Django REST Framework
-- **Background Tasks**: Email notifications and PDF processing with Celery
-- **AI Translation**: Multi-language CV translation using OpenAI
-- **Request Logging**: Comprehensive request tracking and monitoring
-- **Production Deployment**: Live deployment on Railway with PostgreSQL
+### Installation
 
-## 🛠 **Technical Stack**
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd DTEAM-django-practical-test
+   ```
 
-### **Backend**
-- Django 5.2.5
-- Django REST Framework
-- PostgreSQL (production) / SQLite (development)
-- Redis + Celery (background tasks)
-- ReportLab (PDF generation)
-- OpenAI API (translation service)
+2. **Set up Python version with pyenv**
+   ```bash
+   pyenv install 3.11.7
+   pyenv local 3.11.7
+   ```
 
-### **Frontend**
-- Bootstrap 5 (responsive UI)
-- Font Awesome (icons)
-- JavaScript + AJAX (interactive features)
+3. **Install dependencies with Poetry**
+   ```bash
+   poetry install
+   ```
 
-### **DevOps**
-- Docker & Docker Compose
-- Railway (cloud deployment)
-- Gunicorn (production server)
-- WhiteNoise (static files)
+4. **Run database migrations**
+   ```bash
+   python manage.py migrate
+   ```
 
-## 🎯 **Implemented Features**
+5. **Load sample data**
+   ```bash
+   python manage.py loaddata main/fixtures/sample_cv.json
+   ```
 
-### ✅ **All 9 Required Tasks Completed**
+6. **Create a superuser (optional)**
+   ```bash
+   python manage.py createsuperuser
+   ```
 
-1. **Django Fundamentals** - CV model, views, admin interface, comprehensive tests
-2. **PDF Generation** - Professional PDF generation with ReportLab
-3. **REST API** - Full CRUD operations with DRF, validation, error handling
-4. **Middleware & Logging** - Custom request logging middleware
-5. **Context Processors** - Dynamic template context injection
-6. **Docker Basics** - Containerized development with PostgreSQL
-7. **Celery Basics** - Background task processing with Redis
-8. **OpenAI Integration** - AI-powered translation service (27 languages)
-9. **Deployment** - Production deployment on Railway
+### Running the Application
 
-## 🔧 **Quick Start**
+1. **Start the development server**
+   ```bash
+   python manage.py runserver
+   ```
 
-### **Local Development**
+2. **Access the application**
+   - Main application: http://127.0.0.1:8000/
+   - Admin interface: http://127.0.0.1:8000/admin/
+
+### Running Tests
+
 ```bash
-# Clone repository
-git clone <repository-url>
-cd DTEAM-django-practical-test
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run migrations
-python manage.py migrate
-
-# Load sample data
-python manage.py loaddata main/fixtures/sample_cv.json
-
-# Create superuser (optional)
-python manage.py createsuperuser
-
-# Run development server
-python manage.py runserver
+python manage.py test main
 ```
 
-### **Docker Development**
-```bash
-# Build and start services
-docker-compose up --build
-
-# Access application
-# http://localhost:8000
-```
-
-## 📊 **Test Coverage**
-
-- **46+ Tests** covering all major functionality
-- Model tests, view tests, API tests
-- Middleware tests, context processor tests
-- PDF generation tests, error handling tests
-
-Run tests: `python manage.py test main`
-
-## 🚀 **Production Deployment**
-
-The application is deployed on Railway with:
-- PostgreSQL database
-- Redis for background tasks
-- Static file serving via WhiteNoise
-- Automatic deployment from Git
-- Environment variable management
-
-## 📁 **Project Structure**
+### Project Structure
 
 ```
 DTEAM-django-practical-test/
 ├── CVProject/                 # Django project settings
 ├── main/                      # Main application
-│   ├── models.py             # CV and RequestLog models
+│   ├── models.py             # CV model definition
 │   ├── views.py              # List and detail views
-│   ├── api_views.py          # REST API views
-│   ├── admin.py              # Admin interface
-│   ├── middleware.py         # Request logging middleware
-│   ├── context_processors.py # Settings context processor
-│   ├── tasks.py              # Celery background tasks
-│   ├── translation_service.py # OpenAI translation service
-│   ├── tests.py              # Comprehensive test suite
-│   └── templates/main/        # HTML templates
-├── docker-compose.yml        # Docker development setup
-├── docker-compose.prod.yml   # Production Docker setup
-├── Dockerfile               # Application container
-├── requirements.txt         # Python dependencies
-├── railway_startup.py       # Railway deployment script
-└── README.md               # This file
+│   ├── admin.py              # Admin interface configuration
+│   ├── tests.py              # Test cases
+│   ├── urls.py               # URL routing
+│   ├── templates/main/        # HTML templates
+│   ├── fixtures/             # Sample data
+│   └── templatetags/         # Custom template filters
+├── manage.py                  # Django management script
+├── pyproject.toml            # Poetry dependencies
+└── .python-version           # Python version specification
 ```
 
-## 🎨 **Key Features**
+## Requirements
 
-### **CV Management**
-- Professional CV model with comprehensive fields
-- Beautiful list and detail views with pagination
-- Admin interface with search and filtering
-- Print-friendly templates
+Follow PEP 8 and other style guidelines, use clear and concise commit messages and docstrings where needed, structure your project for readability and maintainability, optimize database access using Django's built-in methods, and provide enough details in your README.
 
-### **PDF Generation**
-- Professional PDF generation using ReportLab
-- Custom styling and formatting
-- Automatic filename generation
-- Download functionality
+## Version Control System
 
-### **REST API**
-- Complete CRUD operations
-- Field validation and error handling
-- JSON serialization
-- Proper HTTP status codes
+1. Create a **public GitHub repository** for this practical test, for example: `DTEAM-django-practical-test`.
 
-### **Background Tasks**
-- Celery integration with Redis
-- Email notification system
-- PDF generation in background
-- Task monitoring interface
+2. Put the text of this test (all instructions) into `README.md`.
 
-### **AI Translation**
-- OpenAI integration
-- Support for 27 languages
-- Translation caching
-- Real-time translation interface
+3. For each task, create a **separate branch** (for example, `tasks/task-1`, `tasks/task-2`, etc.).
 
-### **Request Logging**
-- Comprehensive request tracking
-- Performance monitoring
-- User authentication tracking
-- Admin interface for logs
+4. When you finish each task, **merge** that branch back into `main` but **do not delete the original task branch**.
 
-## 🔒 **Security Features**
+## Python Virtual Environment
 
-- CSRF protection
-- XSS protection headers
-- Secure cookie settings
-- Input validation
-- SQL injection prevention
+1. Use **pyenv** to manage the Python version. Create a file named `.python-version` in your repository to store the exact Python version.
 
-## 📈 **Performance & Scalability**
+2. Use **Poetry** to manage and store project dependencies. This will create a `pyproject.toml` file.
 
-- Database query optimization
-- Static file compression
-- Background task processing
-- Translation caching
-- Request logging for monitoring
+3. Update your `README.md` with clear instructions on how to set up and use pyenv and Poetry for this project.
 
-## 🎯 **Demonstrated Skills**
+## Tasks
 
-- **Django Development**: Models, views, templates, admin
-- **API Development**: RESTful APIs with DRF
-- **Background Processing**: Celery task queues
-- **AI Integration**: OpenAI API integration
-- **DevOps**: Docker, cloud deployment
-- **Testing**: Comprehensive test suite
-- **Security**: Production-ready security measures
+### Task 1: Django Fundamentals
 
-## 📞 **Contact**
+1. **Create a New Django Project**
+   - Name it something like `CVProject`.
+   - Use the Python version set up in Task 2 and the latest stable Django release.
+   - Use **SQLite** as your database for now.
 
-**Repository**: [GitHub URL]  
-**Live Demo**: https://dteam-django-practical-test-production.up.railway.app
+2. **Create an App and Model**
+   - Create a Django app (for example, `main`).
+   - Define a CV model with fields like `firstname`, `lastname`, `skills`, `projects`, `bio`, and `contacts`.
+   - Organize the data in a way that feels efficient and logical.
 
-*Ready for technical review and interview discussion.*
+3. **Load Initial Data with Fixtures**
+   - Create a fixture that contains at least one sample CV instance.
+   - Include instructions in `README.md` on how to load the fixture.
+
+4. **List Page View and Template**
+   - Implement a view for the main page (e.g., `/`) to display a list of CV entries.
+   - Use any CSS library to style them nicely.
+   - Ensure the data is retrieved from the database efficiently.
+
+5. **Detail Page View**
+   - Implement a detail view (e.g., `/cv/<id>/`) to show all data for a single CV.
+   - Style it nicely and ensure efficient data retrieval.
+
+6. **Tests**
+   - Add basic tests for the list and detail views.
+   - Update `README.md` with instructions on how to run these tests.
+
+### Task 2: PDF Generation Basics
+
+1. Choose and install any HTML-to-PDF generating library or tool.
+
+2. Add a 'Download PDF' button on the CV detail page that allows users to download the CV as a PDF.
+
+### Task 3: REST API Fundamentals
+
+1. Install **Django REST Framework** (DRF).
+
+2. Create CRUD endpoints for the CV model (create, retrieve, update, delete).
+
+3. Add tests to verify that each CRUD action works correctly.
+
+### Task 4: Middleware & Request Logging
+
+1. **Create a RequestLog Model**
+   - You can put this in the existing app or a new app (e.g., `audit`).
+   - Include fields such as `timestamp`, `HTTP method`, `path`, and optionally other details like query string, remote IP, or logged-in user.
+
+2. **Implement Logging Middleware**
+   - Write a custom Django middleware class that intercepts each incoming request.
+   - Create a RequestLog record in the database with the relevant request data.
+   - Keep it efficient.
+
+3. **Recent Requests Page**
+   - Create a view (e.g., `/logs/`) showing the 10 most recent logged requests, sorted by timestamp descending.
+   - Include a template that loops through these entries and displays their timestamp, method, and path.
+
+4. **Test Logging**
+   - Ensure your tests verify the logging functionality.
+
+### Task 5: Template Context Processors
+
+1. **Create settings_context**
+   - Create a context processor that injects your entire Django settings into all templates.
+
+2. **Settings Page**
+   - Create a view (e.g., `/settings/`) that displays `DEBUG` and other settings values made available by the context processor.
+
+### Task 6: Docker Basics
+
+1. Use Docker Compose to containerize your project.
+
+2. Switch the database from SQLite to PostgreSQL in Docker Compose.
+
+3. Store all necessary environment variables (database credentials, etc.) in a `.env` file.
+
+### Task 7: Celery Basics
+
+1. Install and configure **Celery**, using Redis or RabbitMQ as the broker.
+
+2. Add a Celery worker to your Docker Compose configuration.
+
+3. On the CV detail page, add an email input field and a 'Send PDF to Email' button to trigger a Celery task that emails the PDF.
+
+### Task 8: OpenAI Basics
+
+1. On the CV detail page, add a 'Translate' button and a language selector.
+
+2. Include these languages: Cornish, Manx, Breton, Inuktitut, Kalaallisut, Romani, Occitan, Ladino, Northern Sami, Upper Sorbian, Kashubian, Zazaki, Chuvash, Livonian, Tsakonian, Saramaccan, Bislama.
+
+3. Hook this up to an OpenAI translation API or any other translation mechanism you prefer. The idea is to translate the CV content into the selected language.
+
+### Task 9: Deployment
+
+Deploy this project to DigitalOcean or any other VPS. (If you do not have a DigitalOcean account, you can use this referral link to create account with $200 on balance: https://m.do.co/c/967939ea1e74)
+
+## That's it!
+
+Complete each task thoroughly, commit your work following the branch-and-merge structure, and make sure your `README.md` clearly explains how to install, run, and test everything. We look forward to reviewing your submission!
+
+Thank you!
