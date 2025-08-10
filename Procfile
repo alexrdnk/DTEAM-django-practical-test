@@ -1,1 +1,1 @@
-web: python startup_check.py && echo '=== DJANGO CHECK ===' && python manage.py check && echo '=== MIGRATIONS ===' && python manage.py migrate --noinput && echo '=== COLLECTSTATIC ===' && python manage.py collectstatic --noinput && echo '=== STARTING GUNICORN ===' && gunicorn CVProject.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --log-level debug
+web: python startup_check.py && python manage.py check --verbosity=2
