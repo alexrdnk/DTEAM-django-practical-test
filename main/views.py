@@ -85,7 +85,7 @@ def settings_view(request):
 def trigger_background_task(request):
     """View to trigger background tasks for testing."""
     task_type = request.GET.get('task', 'test')
-    
+
     try:
         if task_type == 'email':
             result = send_email_task.delay(
@@ -98,7 +98,7 @@ def trigger_background_task(request):
                 'message': 'Email task triggered',
                 'task_id': result.id
             })
-        
+
         elif task_type == 'cv_notification':
             # Get the first CV for testing
             cv = CV.objects.first()
@@ -114,7 +114,7 @@ def trigger_background_task(request):
                     'status': 'error',
                     'message': 'No CVs found for notification test'
                 })
-        
+
         elif task_type == 'pdf_generation':
             cv = CV.objects.first()
             if cv:
@@ -129,7 +129,7 @@ def trigger_background_task(request):
                     'status': 'error',
                     'message': 'No CVs found for PDF generation test'
                 })
-        
+
         elif task_type == 'cleanup_logs':
             result = cleanup_old_logs_task.delay()
             return JsonResponse({
@@ -137,7 +137,7 @@ def trigger_background_task(request):
                 'message': 'Log cleanup task triggered',
                 'task_id': result.id
             })
-        
+
         elif task_type == 'daily_report':
             result = send_daily_report_task.delay()
             return JsonResponse({
@@ -145,7 +145,7 @@ def trigger_background_task(request):
                 'message': 'Daily report task triggered',
                 'task_id': result.id
             })
-        
+
         elif task_type == 'long_running':
             result = long_running_task.delay()
             return JsonResponse({
@@ -153,7 +153,7 @@ def trigger_background_task(request):
                 'message': 'Long running task triggered (will take 10 seconds)',
                 'task_id': result.id
             })
-        
+
         else:
             # Default test task
             result = test_task.delay()
@@ -162,7 +162,7 @@ def trigger_background_task(request):
                 'message': 'Test task triggered',
                 'task_id': result.id
             })
-    
+
     except Exception as e:
         # Handle Redis connection errors gracefully
         return JsonResponse({
@@ -182,18 +182,18 @@ def generate_cv_pdf(cv):
     """Generate modern, professional PDF for CV using ReportLab."""
     # Create a file-like buffer to receive PDF data
     buffer = BytesIO()
-    
+
     # Create the PDF object, using the file-like buffer as its "file."
-    doc = SimpleDocTemplate(buffer, pagesize=A4, 
-                          leftMargin=1.8*cm, rightMargin=1.8*cm,
-                          topMargin=2*cm, bottomMargin=1.5*cm)
-    
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            leftMargin=1.8 * cm, rightMargin=1.8 * cm,
+                            topMargin=2 * cm, bottomMargin=1.5 * cm)
+
     # Container for the 'Flowable' objects
     story = []
-    
+
     # Get styles
     styles = getSampleStyleSheet()
-    
+
     # Create modern custom styles with professional typography
     name_style = ParagraphStyle(
         'NameStyle',
@@ -206,7 +206,7 @@ def generate_cv_pdf(cv):
         fontName='Helvetica-Bold',
         leading=32
     )
-    
+
     title_style = ParagraphStyle(
         'TitleStyle',
         parent=styles['Normal'],
@@ -217,7 +217,7 @@ def generate_cv_pdf(cv):
         fontName='Helvetica',
         leading=16
     )
-    
+
     contact_style = ParagraphStyle(
         'ContactStyle',
         parent=styles['Normal'],
@@ -228,7 +228,7 @@ def generate_cv_pdf(cv):
         fontName='Helvetica',
         leading=12
     )
-    
+
     section_heading_style = ParagraphStyle(
         'SectionHeading',
         parent=styles['Heading2'],
@@ -240,7 +240,7 @@ def generate_cv_pdf(cv):
         leftIndent=0,
         leading=18
     )
-    
+
     content_style = ParagraphStyle(
         'ContentStyle',
         parent=styles['Normal'],
@@ -252,7 +252,7 @@ def generate_cv_pdf(cv):
         leading=14,
         leftIndent=0
     )
-    
+
     skills_style = ParagraphStyle(
         'SkillsStyle',
         parent=styles['Normal'],
@@ -264,7 +264,7 @@ def generate_cv_pdf(cv):
         leading=14,
         leftIndent=0
     )
-    
+
     footer_style = ParagraphStyle(
         'FooterStyle',
         parent=styles['Normal'],
@@ -274,7 +274,7 @@ def generate_cv_pdf(cv):
         fontName='Helvetica',
         leading=10
     )
-    
+
     # Header section with name, title, and contact info
     # Create a table for the header layout
     header_data = [
@@ -283,8 +283,8 @@ def generate_cv_pdf(cv):
             Paragraph(cv.contacts.replace('\n', '<br/>'), contact_style)
         ]
     ]
-    
-    header_table = Table(header_data, colWidths=[doc.width*0.6, doc.width*0.4])
+
+    header_table = Table(header_data, colWidths=[doc.width * 0.6, doc.width * 0.4])
     header_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (0, 0), 'LEFT'),
         ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
@@ -295,44 +295,44 @@ def generate_cv_pdf(cv):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
     ]))
     story.append(header_table)
-    
+
     # Add professional title
     story.append(Paragraph("Software Developer", title_style))
-    
+
     # Add decorative line
     story.append(Spacer(1, 15))
-    
+
     # Professional Summary Section
     story.append(Paragraph("Professional Summary", section_heading_style))
     story.append(Paragraph(cv.bio.replace('\n', '<br/>'), content_style))
-    
+
     # Skills & Expertise Section
     story.append(Paragraph("Technical Skills", section_heading_style))
-    
+
     # Format skills with bullet points for better readability
     skills_list = [skill.strip() for skill in cv.skills.split(',')]
     skills_text = " • ".join(skills_list)
     story.append(Paragraph(skills_text, skills_style))
-    
+
     # Projects & Achievements Section
     story.append(Paragraph("Projects & Achievements", section_heading_style))
     story.append(Paragraph(cv.projects.replace('\n', '<br/>'), content_style))
-    
+
     # Add footer with metadata
     story.append(Spacer(1, 20))
     footer_text = f"Generated on {cv.updated_at.strftime('%B %d, %Y')} at {cv.updated_at.strftime('%H:%M')}"
     story.append(Paragraph(footer_text, footer_style))
-    
+
     metadata_text = f"CV ID: {cv.pk} | Created: {cv.created_at.strftime('%b %d, %Y')} | Updated: {cv.updated_at.strftime('%b %d, %Y')}"
     story.append(Paragraph(metadata_text, footer_style))
-    
+
     # Build PDF
     doc.build(story)
-    
+
     # Get the value of the BytesIO buffer and write it to the response
     pdf = buffer.getvalue()
     buffer.close()
-    
+
     # Create HTTP response with PDF
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{cv.get_full_name()}_CV.pdf"'
@@ -353,22 +353,22 @@ def send_pdf_email_api(request):
         data = json.loads(request.body)
         cv_id = data.get('cv_id')
         email = data.get('email')
-        
+
         if not cv_id or not email:
             return JsonResponse({
                 'status': 'error',
                 'message': 'CV ID and email are required'
             })
-        
+
         # Trigger the Celery task
         result = send_cv_notification_task.delay(cv_id, email)
-        
+
         return JsonResponse({
             'status': 'success',
             'message': f'PDF will be sent to {email}',
             'task_id': result.id
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({
             'status': 'error',
@@ -389,13 +389,13 @@ def translate_cv_api(request):
         data = json.loads(request.body)
         cv_id = data.get('cv_id')
         target_language = data.get('language')
-        
+
         if not cv_id or not target_language:
             return JsonResponse({
                 'status': 'error',
                 'message': 'CV ID and language are required'
             })
-        
+
         # Get the CV
         try:
             cv = CV.objects.get(id=cv_id)
@@ -404,7 +404,7 @@ def translate_cv_api(request):
                 'status': 'error',
                 'message': 'CV not found'
             })
-        
+
         # Initialize translation service
         try:
             translation_service = TranslationService()
@@ -413,7 +413,7 @@ def translate_cv_api(request):
                 'status': 'error',
                 'message': f'Failed to initialize translation service: {str(e)}'
             })
-        
+
         # Check if language is supported
         try:
             available_languages = translation_service.get_available_languages()
@@ -427,7 +427,7 @@ def translate_cv_api(request):
                 'status': 'error',
                 'message': f'Failed to get available languages: {str(e)}'
             })
-        
+
         # Translate the CV content
         try:
             result = translation_service.translate_cv_content(cv, target_language)
@@ -436,7 +436,7 @@ def translate_cv_api(request):
                 'status': 'error',
                 'message': f'Translation failed: {str(e)}'
             })
-        
+
         if result.get('translated') is True:
             return JsonResponse({
                 'status': 'success',
@@ -449,7 +449,7 @@ def translate_cv_api(request):
                 'message': result.get('error', 'Translation failed'),
                 'details': result
             })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({
             'status': 'error',

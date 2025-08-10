@@ -29,6 +29,7 @@ try:
     USE_SQLITE = config('USE_SQLITE', default=True, cast=bool)  # Default to SQLite for local development
     REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
     OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+    HUGGINGFACE_API_KEY = config('HUGGINGFACE_API_KEY', default='')
 except ImportError:
     # Fallback for when python-decouple is not installed
     SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
@@ -41,6 +42,7 @@ except ImportError:
     USE_SQLITE = True  # Default to SQLite for local development
     REDIS_URL = 'redis://localhost:6379/0'
     OPENAI_API_KEY = ''
+    HUGGINGFACE_API_KEY = ''
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
