@@ -55,6 +55,28 @@ except ImportError:
 
 ALLOWED_HOSTS = ['*']
 
+# CSRF settings for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://dteam-django-practical-test-production.up.railway.app',
+    'https://*.railway.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+# Session settings
+SESSION_COOKIE_SECURE = False  # Set to True only if using HTTPS
+CSRF_COOKIE_SECURE = False     # Set to True only if using HTTPS
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
+
+# Additional security settings for Railway
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_HSTS_SECONDS = 0  # Disable HSTS for now
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+
 
 # Application definition
 
