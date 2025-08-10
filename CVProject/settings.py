@@ -114,9 +114,20 @@ DATABASE_URL = config('DATABASE_URL', default='')
 
 if DATABASE_URL:
     # Use DATABASE_URL for cloud deployments
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
+    try:
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL)
+        }
+        print(f"Using DATABASE_URL: {DATABASE_URL[:20]}...")
+    except Exception as e:
+        print(f"Error parsing DATABASE_URL: {e}")
+        # Fallback to SQLite
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 elif USE_SQLITE:
     # Use SQLite for local development
     DATABASES = {
