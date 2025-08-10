@@ -112,6 +112,11 @@ import dj_database_url
 # Check if DATABASE_URL is set (Railway, Heroku, etc.)
 DATABASE_URL = config('DATABASE_URL', default='')
 
+# Debug environment variables
+print(f"DEBUG: DATABASE_URL exists: {bool(DATABASE_URL)}")
+print(f"DEBUG: SECRET_KEY exists: {bool(config('SECRET_KEY', default=''))}")
+print(f"DEBUG: PORT: {os.environ.get('PORT', 'Not set')}")
+
 if DATABASE_URL:
     # Use DATABASE_URL for cloud deployments
     try:
