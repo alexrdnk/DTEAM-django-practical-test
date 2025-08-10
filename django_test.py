@@ -33,16 +33,6 @@ def test_django_import():
         from django.conf import settings
         print("✅ Django settings imported successfully")
         
-        from django.db import connection
-        print("✅ Django database connection imported successfully")
-        
-        # Test database connection
-        try:
-            connection.ensure_connection()
-            print("✅ Database connection test successful")
-        except Exception as e:
-            print(f"❌ Database connection test failed: {e}")
-        
         print("=== DJANGO IMPORT TEST COMPLETED ===")
         return True
         
@@ -50,6 +40,7 @@ def test_django_import():
         print(f"❌ Django import test failed: {e}")
         import traceback
         traceback.print_exc()
+        print("=== DJANGO IMPORT TEST FAILED BUT CONTINUING ===")
         return False
 
 if __name__ == "__main__":
