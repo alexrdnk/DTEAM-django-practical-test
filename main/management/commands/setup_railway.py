@@ -29,38 +29,32 @@ class Command(BaseCommand):
         if not CV.objects.exists():
             # Sample CV 1
             cv1 = CV.objects.create(
-                first_name='John',
-                last_name='Doe',
+                firstname='John',
+                lastname='Doe',
                 bio='Experienced software developer with 5+ years in web development. Passionate about creating scalable and maintainable code.',
                 skills='Python, Django, JavaScript, React, PostgreSQL, Docker, AWS',
                 projects='Built a full-stack e-commerce platform using Django and React. Implemented CI/CD pipeline with GitHub Actions. Developed RESTful APIs for mobile applications.',
-                contacts='john.doe@email.com\n+1 (555) 123-4567\nLinkedIn: linkedin.com/in/johndoe',
-                created_at=timezone.now(),
-                updated_at=timezone.now()
+                contacts='john.doe@email.com\n+1 (555) 123-4567\nLinkedIn: linkedin.com/in/johndoe'
             )
             
             # Sample CV 2
             cv2 = CV.objects.create(
-                first_name='Jane',
-                last_name='Smith',
+                firstname='Jane',
+                lastname='Smith',
                 bio='Full-stack developer specializing in modern web technologies. Strong focus on user experience and performance optimization.',
                 skills='JavaScript, TypeScript, React, Node.js, MongoDB, GraphQL, Kubernetes',
                 projects='Led development of a real-time chat application. Optimized database queries reducing load times by 60%. Implemented microservices architecture.',
-                contacts='jane.smith@email.com\n+1 (555) 987-6543\nGitHub: github.com/janesmith',
-                created_at=timezone.now(),
-                updated_at=timezone.now()
+                contacts='jane.smith@email.com\n+1 (555) 987-6543\nGitHub: github.com/janesmith'
             )
             
             # Sample CV 3
             cv3 = CV.objects.create(
-                first_name='Alex',
-                last_name='Johnson',
+                firstname='Alex',
+                lastname='Johnson',
                 bio='DevOps engineer with expertise in cloud infrastructure and automation. Passionate about building reliable and scalable systems.',
                 skills='Docker, Kubernetes, AWS, Terraform, Python, Bash, Jenkins',
                 projects='Migrated legacy infrastructure to Kubernetes. Implemented automated deployment pipeline. Reduced infrastructure costs by 40%.',
-                contacts='alex.johnson@email.com\n+1 (555) 456-7890\nTwitter: @alexjohnson',
-                created_at=timezone.now(),
-                updated_at=timezone.now()
+                contacts='alex.johnson@email.com\n+1 (555) 456-7890\nTwitter: @alexjohnson'
             )
             
             self.stdout.write(self.style.SUCCESS(f'Created {CV.objects.count()} sample CVs'))
