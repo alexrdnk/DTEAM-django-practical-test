@@ -59,7 +59,7 @@ def main():
         sys.exit(1)
     
     # Step 4: Database test (skip if it fails)
-    if not run_command("python manage.py dbshell -c 'SELECT 1;'", "Database Test"):
+    if not run_command("python manage.py dbshell --command='SELECT 1;'", "Database Test"):
         print("⚠️ Database test failed, but continuing...")
     
     # Step 5: Migrations
@@ -67,11 +67,15 @@ def main():
         print("❌ Migrations failed - stopping startup")
         sys.exit(1)
     
-    # Step 6: Collect static
+    # Step 6: Setup database with sample data
+    if not run_command("python manage.py setup_railway", "Database Setup"):
+        print("⚠️ Database setup failed, but continuing...")
+    
+    # Step 7: Collect static
     if not run_command("python manage.py collectstatic --noinput", "Collect Static"):
         print("⚠️ Collect static failed, but continuing...")
     
-    # Step 7: Start Gunicorn
+    # Step 8: Start Gunicorn
     print("\n=== STARTING GUNICORN ===")
     port = os.environ.get('PORT', '8000')
     gunicorn_cmd = f"gunicorn CVProject.wsgi:application --bind 0.0.0.0:{port} --workers 1 --timeout 120 --log-level info"
