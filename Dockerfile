@@ -24,6 +24,9 @@ RUN pip install gunicorn
 # Copy project
 COPY . .
 
+# Create static directory
+RUN mkdir -p /app/static
+
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' django
 

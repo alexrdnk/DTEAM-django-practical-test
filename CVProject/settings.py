@@ -179,7 +179,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-]
+] if (BASE_DIR / 'static').exists() else []
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
