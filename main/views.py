@@ -466,10 +466,17 @@ def translate_cv_api(request):
 
 def health_check(request):
     """Simple health check endpoint for Railway."""
-    return JsonResponse({
-        'status': 'healthy',
-        'message': 'Django CV Project is running successfully'
-    })
+    try:
+        # Super simple health check - no database access
+        return JsonResponse({
+            'status': 'healthy',
+            'message': 'Django CV Project is running successfully'
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 
 def root_view(request):
